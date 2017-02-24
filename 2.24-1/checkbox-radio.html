@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>checkbox-radio</title>
+	<style type="text/css">
+		label{
+			margin-right: 10px;
+			display:inline-block;
+			height:16px;
+			width: 16px;
+			background-image: url(check-png.png);
+		}
+		input{
+			display:none;
+		}
+		.radio label{
+			background-position: -24px -10px;
+		}
+		.checkbox label{
+			background-position: -24px -32px;
+		}
+		.background .radio input:checked+label{
+			background-position: -59px -10px;
+		}
+		.background .checkbox input:checked+label{
+			background-position: -59px -32px;
+		}
+		.weiyuansu .radio input:checked+label::before{
+			content:"";
+			display:inline-block;
+			height:16px;
+			width: 16px;
+			background-image:url(check-png.png);
+			background-position: -59px -10px;
+		}
+		.weiyuansu .checkbox input:checked+label::before{
+			content:"";
+			display:inline-block;
+			height:16px;
+			width: 16px;
+			background-image:url(check-png.png);
+			background-position: -59px -31px;
+		}
+	</style>
+</head>
+<body>
+	<div class="background">
+		<h2>背景图方式</h2>
+		<div class="radio">
+			<input id="radio1" type="radio" name="radioinput"><label for="radio1"></label>
+			<input id="radio2" type="radio" name="radioinput"><label for="radio2"></label>
+		</div>
+		<div class="checkbox">
+			<input id="check1" type="checkbox" name="checkinput"><label for="check1"></label>
+			<input id="check2" type="checkbox" name="checkinput"><label for="check2"></label>
+		</div>
+	</div>
+	<div class="weiyuansu">
+		<h2>伪元素方式</h2>
+		<div class="radio">
+			<input id="radio3" type="radio" name="radioinput0"><label for="radio3"></label>
+			<input id="radio4" type="radio" name="radioinput0"><label for="radio4"></label>
+		</div>
+		<div class="checkbox">
+			<input id="check3" type="checkbox" name="checkinput0"><label for="check3"></label>
+			<input id="check4" type="checkbox" name="checkinput0"><label for="check4"></label>
+		</div>
+	</div>
+</body>
+</html>
