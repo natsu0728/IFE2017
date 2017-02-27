@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>ontextmenu</title>
+	<style type="text/css">
+		*{margin:0;
+			padding:0;
+		font-family: "Microsoft yahei";}
+		.main{
+			height:200px;
+			width: 600px;
+			margin:20px 0 0 20px;
+			background-color: #eee;
+			border:1px solid #ddd;
+			border-radius: 8px;
+			box-shadow: 0 0 8px #ccc inset;
+			line-height:200px;
+		}
+		p{
+			text-align:center;
+			font-size:20px;			
+		}
+		.menu{
+			position:absolute;
+			list-style: none;
+			background-color: #fff;
+			border:2px solid #ddd;
+			border-radius: 5px;
+			width: 120px;
+			font-size:15px;
+			display:none;
+		}
+		.menu li{
+			margin:5px 0 5px 5px;
+		}
+		.menu li:hover{
+			background-color:#E5E5E5;
+		}
+	</style>
+</head>
+<body>
+	<div class="main">
+		<p>right click to see the menue</p>
+	</div>
+	<ul class="menu">
+		<li>menu item1</li>
+		<li>menu item2</li>
+	</ul>
+	<script type="text/javascript">
+		window.onload=function(){
+			//单击右键显示菜单
+			var maindiv=document.getElementsByClassName('main')[0];
+			var menu=document.getElementsByClassName('menu')[0];
+			maindiv.oncontextmenu=function(e){
+				//阻止冒泡和默认行为
+				var e = e || window.event;
+				if(e.stopPropagation){
+					e.stopPropagation();
+					e.preventDefault();
+				}else{
+					e.cancelBubble=true;
+					e.returnValue = false;
+				}
+				//获取鼠标位置
+				var oX=e.clientX;
+				var oY=e.clientY;
+				//判断菜单出现的位置(可封装成函数，参数为区域和菜单的宽高)
+				menu.style.left=oX>520?(oX-140)+"px":(oX+5)+"px";
+				menu.style.top=oY>170?(oY-50)+"px":(oY+5)+"px";
+				menu.style.display="block";
+			}
+			//单击左键或其他区域右键屏蔽
+			window.onclick=function(){
+				menu.style.display="none";
+			}
+		}
+	</script>
+</body>
+</html>
