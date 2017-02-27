@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>css-collapse</title>
+</head>
+<style type="text/css">
+	.main{
+		width:500px;
+	}
+	label{
+		height: 50px;
+		display:block;
+		line-height:50px;
+		font-size:15px;
+		text-indent: 20px;
+	}
+	.wrapper{
+		background-color: #eee;
+		border:1px solid #ddd;
+		border-radius: 8px;
+		box-shadow: 0 0 2px #ccc;
+		font-family: "Microsoft yahei";
+		margin-bottom: 5px;
+		overflow:hidden;
+		height:50px;
+		transition: height 0.5s;
+	}
+	input{
+		display:none;
+	}
+	.wrapper::after{
+		content:"Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.";
+		display:block;
+		padding:20px;
+		background-color: #fff;
+	}
+	input:checked+.wrapper{
+		height:320px;
+	}
+</style>
+<body>
+	<div class="main">
+		<input id="radio1" type="radio" name="radioinput">
+		<div class="wrapper">
+		<label for="radio1">Collapsible Group Item #1</label>
+		</div>
+		<input id="radio2" type="radio" name="radioinput">
+		<div class="wrapper">
+		<label for="radio2">Collapsible Group Item #1</label>
+		</div>
+		<input id="radio3" type="radio" name="radioinput">
+		<div class="wrapper">
+		<label for="radio3">Collapsible Group Item #1</label>
+		</div>
+	</div>
+</body>
+</html>
