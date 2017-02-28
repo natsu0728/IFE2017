@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>nuomi-filter</title>
+	<style type="text/css">
+		.wrapper{
+			padding:10px 0 0 10px;
+		}
+		.wrapper .content{
+			position:absolute;
+			left:80px;
+			top:60px;
+			width: 360px;
+			height: 220px;
+			z-index:1;
+		}
+		.content p{
+			text-align:center;
+			margin-top:50px;
+			font: bold 20px "Microsoft yahei";
+			background-image: -webkit-linear-gradient(left, #7B14E0, #D60BEA 20%,#8E0DBE 40%, #7B19DC 60%, #3F87F2 80%, #2BE4F6 90%,#742DF0);
+			-webkit-text-fill-color: transparent;
+			-webkit-background-clip: text;
+			-webkit-background-size: 200% 100%;
+			animation:mysentence 3s linear infinite alternate; 
+		}
+		.wrapper .content::before{
+			content:"";
+			position:absolute;
+			border:2px solid #fff;
+			border-width: 0 2px;
+			width: 100%;				
+			animation:mycolumn 3s linear infinite alternate;
+			box-sizing: border-box;
+			z-index:1;
+		}
+		.wrapper .content::after{
+			content:"";
+			position:absolute;
+			top:0;
+			border:4px solid #fff;
+			border-width: 4px 0;
+			height: 100%;				
+			animation:myfloat 3s linear infinite alternate;			
+			box-sizing: border-box;
+			z-index:1;
+		} 
+		.showpic{
+			animation:myblur 3s ease-out infinite alternate;
+		}
+		@keyframes myblur{
+			0%{
+				filter:blur(0px);
+			}
+			20%{
+				filter:blur(0px);
+			}
+			60%{
+				filter:blur(3px);
+			}
+			100%{
+				filter:blur(3px);
+			}
+		}
+		@keyframes mycolumn{
+			0%{				
+				top:50%;
+				height: 0;
+				opacity: 0;
+			}
+			20%{
+				top:50%;
+				height: 0;
+				opacity: 0;
+			}
+			60%{
+				top:0;
+				height: 100%;
+				opacity: 1;
+			}
+			100%{
+				top:0;
+				height: 100%;
+				opacity: 1;
+			}
+		}
+		@keyframes myfloat{
+			0%{		
+				left:50%;
+				width: 0;
+				opacity: 0;
+			}
+			20%{				
+				left:50%;
+				width: 0;
+				opacity: 0;
+			}
+			60%{
+				left:0;
+				width: 100%;
+				opacity: 1;
+			}
+			100%{
+				left:0;
+				width: 100%;
+				opacity: 1;
+			}
+		}
+		@keyframes mysentence{
+			0%{
+				opacity:0;
+				background-position: 0 0;
+			}
+			30%{
+				opacity:0;
+				background-position: 0 0;
+			}
+			100%{
+				opacity:1;
+				background-position: -100% 0;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="wrapper">
+		<div class="content">
+			<div class="sentence">
+				<p>欢迎各位报考同济大学</p>
+				<p>点击退学</p>
+			</div>
+		</div>
+		<img class="showpic" src="tongji-sakura.jpg" width=500 height=320>
+	</div>
+</body>
+</html>
