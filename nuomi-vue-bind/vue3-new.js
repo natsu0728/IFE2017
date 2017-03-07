@@ -1,10 +1,8 @@
 //用event函数进行封装 
 function Observer(data){
 	this.data=data;
-	this.parent=null;
 	//用来存放回调
 	this.cb={};
-	this.children={};
 	this.walk(data);	
 }
 
@@ -19,7 +17,9 @@ p.walk=function(obj){
 				var obs=new Observer(val);
 				obs.parent=this;
 				//用观察者记录嵌套属性的属性名
-				obs.key=key;
+				obs.key=key;				
+				//所有非最深层属性都有额外的children属性，所有深层属性都具有key和parent属性
+				this.children=this.children || new Object();
 				this.children[key]=obs;
 			}
 		this.convert(key,val);
@@ -82,7 +82,6 @@ p.$watch=function(prop,callback){
 		}
 		
 	});
-	console.log("给"+obs.key+"挂上了回调函数");
 	var key=props[props.length-1];
 	if(!obs.cb[key]){
 		obs.cb[key]=[];

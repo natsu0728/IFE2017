@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>vue-4</title>
+</head>
+<body>
+	<div id="app">
+		<p>姓名：姓{{user.name.xin}}名{{user.name.ming}}</p>
+		<p>年龄：{{user.age}}</p>
+	</div>
+	<script type="text/javascript">
+		function Vue(dataObj){
+			var el=dataObj.el;
+			if(el.charAt(0)!="#"){
+				console.log("应传入元素的id");
+				return;
+			}
+			el=el.substring(1);
+			this.element=document.getElementById(el);
+			this.data=dataObj.data;
+			this.bindDOM(this.element,this.data);
+		}
+
+		var v=Vue.prototype;
+
+		v.bindDOM=function(element,data){
+			var childEle=element.childNodes,
+				node;
+			for(var i=0;i<childEle.length;i++){
+				node=childEle[i];
+				//取出文本节点
+				if(node.nodeType===3){
+					//匹配所有形如{{prop}}的字符串
+					var regExp=/\{\{(\w+(?:\.\w+)*)\}\}/g
+					var str=node.nodeValue.match(regExp);
+					if(str===null){
+						continue;
+					}
+					for(var i=0;i<str.length;i++){
+						//由于js没有向后预查所以这里手动去掉两个大括号
+						var key=str[i].substring(2,str[i].length-2);
+						var props=key.split(".");
+						var obj=data;
+						for(var j=0;j<props.length;j++){
+								obj=obj[props[j]]
+								if(typeof obj!="object"){
+									node.textContent=node.nodeValue.replace(str[i],obj);
+									break;
+								}							
+							}
+					}
+				}else if(node.nodeType===1){
+					this.bindDOM(node,data);
+				}
+
+			}
+		}
+
+		var app=new Vue({
+			el:'#app',
+			data:{
+				user:{
+					name:{
+						xin:"王",
+						ming:"五"
+					},
+					age:25
+				}
+			}
+		})
+	</script>
+</body>
+</html>
