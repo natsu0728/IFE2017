@@ -31,6 +31,11 @@
 		</div>
 	</div>
 	<script type="text/javascript">
+	/*
+	优点：改变的属性为新对象时，依然可以触发渲染
+	不足：observer与vue的耦合性很高，因为DOM的渲染代码被写死在eventOn函数里，而不是通过回调。需要修改成一个定制版observer。
+
+	*/
 ////////////Vue对象
 		function Vue(dataObj){
 			var el=dataObj.el;
@@ -45,9 +50,7 @@
 			this.init(this.element);
 			this.bindDOM(this.element,this.data);
 		}
-
 		var v=Vue.prototype;
-
 		v.init=function(element){
 			var childEle=element.childNodes,
 				node;
@@ -60,7 +63,6 @@
 				}else if(node.nodeType===1){
 					this.init(node);
 				}
-
 			}
 		}
 		v.bindDOM=function(element,data,regExp){
@@ -94,10 +96,8 @@
 				}else if(node.nodeType===1){
 					this.bindDOM(node,data,regExp);
 				}
-
 			}
 		}
-
 		v.randerDOM=function(node,data,words){
 			for(var i=0;i<words.length;i++){
 			//由于js没有向后预查所以这里手动去掉两个大括号
@@ -105,11 +105,8 @@
 				var value=eval("data."+key);
 				node.nodeValue=node.nodeValue.replace(words[i],value);
 		}
-
 	}
-
 /////////////////observer对象
-
 		//用event函数进行封装 
 		function Observer(data,vue){
 			this.data=data;
@@ -118,9 +115,7 @@
 			this.vue=vue;
 			this.walk(data);	
 		}
-
 		var p=Observer.prototype;
-
 		p.walk=function(obj){
 			var val;
 			for(var key in obj){
@@ -138,9 +133,7 @@
 					this.convert(key,val);
 				}
 			}
-
 		}
-
 		p.convert=function(key,val){
 			var observer=this;
 			Object.defineProperty(this.data,key,{
@@ -166,7 +159,6 @@
 				}
 			})
 		}
-
 		p.eventOn=function(key,newVal){
 			//动态数据绑定
 			var parent=this;
@@ -184,7 +176,6 @@
 			var regExp=new RegExp("\\{\\{"+path+"(?:\\.\\w+)*\\}\\}","g")
 			this.vue.bindDOM(this.vue.element,this.vue.data,regExp);
 			//如果newValue是一个对象
-
 			//执行挂在这个观察者上的回调
 			if(this.cb[key]){
 				this.cb[key].forEach(function(sub){
@@ -192,8 +183,6 @@
 				})
 			}			
 		}
-
-
 		//挂上回调函数
 		p.$watch=function(prop,callback){
 			//prop可能是一个“obj.prop.key”的形式，找到观察prop的observer，把回调函数挂上去
@@ -212,9 +201,6 @@
 			}
 			obs.cb[key].push(callback);
 		}
-
-
-
 		var app=new Vue({
 			el:'#app',
 			data:{

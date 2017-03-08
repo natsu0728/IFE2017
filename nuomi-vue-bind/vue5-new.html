@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>vue-4</title>
+	<style type="text/css">
+		.display{
+			border:1px solid #999;
+			padding:5px;
+			width: 200px;
+		}
+	</style>
+</head>
+<body>
+	<div id="app">
+		<div class="display">
+		<p>姓名：(姓){{user.name.xing}}(名){{user.name.ming}}</p>
+		<p>年龄：{{user.age}}</p>
+		</div>
+		<br />
+		<div>
+			<p>在控制台修改app.data的以下值看绑定效果:</p>
+			<p>user:{</p>
+			<p>&nbsp;&nbsp;name:{</p>
+			<p>&nbsp;&nbsp;&nbsp;&nbsp;xing:"",</p>
+			<p>&nbsp;&nbsp;&nbsp;&nbsp;ming:""</p>
+			<p>&nbsp;&nbsp;},</p>
+			<p>&nbsp;&nbsp;age:</p>
+			<p>}</p>
+			<p>如：app.data.user.name={xing:"张",ming:"三"}</p>
+		</div>
+	</div>
+	<script type="text/javascript" src="vue3-new.js"></script>
+	<script type="text/javascript">
+/*
+(vue3-new版observer是实现了冒泡的，不用冒泡的也可以)
+回调函数在初始化时挂上，也因此在setter里新建的observer回调列表为空
+优点：实现了针对性渲染，降低了observer与vue的耦合性
+	  另外这个版本优化了bindDOM方法，初始化遍历DOM时保存有用的文本节点，减少重复代码
+导致不足：不能将对象属性直接替换成另一个对象，因为替换后该属性内层的嵌套属性改变时不会触发重新渲染
+*/
+////////////Vue对象
+		function Vue(dataObj){
+			var el=dataObj.el;
+			if(el.charAt(0)!="#"){
+				throw '应传入元素的id';
+			}
+			el=el.substring(1);
+			this.element=document.getElementById(el);
+			this.data=dataObj.data;
+			//存放所有需要渲染的节点
+			this.nodes=[];
+			//监听数据
+			this.obs=new Observer(this.data);			
+			this.init(this.element);
+			//第一次渲染
+			this.bindDOM(this.nodes,this.data);
+		}
+
+		var v=Vue.prototype;
+		//初始化操作包含拷贝原始模板以及给模板上出现的属性添加回调
+		v.init=function(element){
+			var childEle=element.childNodes,
+				node;
+			for(var i=0;i<childEle.length;i++){
+				node=childEle[i];
+				//取出文本节点
+				if(node.nodeType===3 && node.nodeValue.trim()){
+					//str保存了所有在模板上出现的属性
+					var str=node.nodeValue.match(/\{\{(\w+(?:\.\w+)*)\}\}/g);
+					if(str===null){
+						continue;
+					}
+					//拷贝原始模板	
+						node.originText=node.nodeValue;
+						node.str=str;
+						this.nodes.push(node);
+						//给str中的属性添加值变化时的回调
+						var vue=this;
+						str.forEach(function(prop){
+							prop=prop.substring(2,prop.length-2);
+							console.log(prop);
+							while(prop){
+								(function(prop){
+									vue.obs.$watch(prop,function(){
+								var regExp=new RegExp("\\{\\{"+prop+"(?:\\.\\w+)*\\}\\}","g")
+								vue.bindDOM(vue.nodes,vue.data,regExp);
+								});
+								})(prop);
+							prop = prop.substr(0, prop.lastIndexOf('.'));
+							}
+
+							});
+				}else if(node.nodeType===1){
+					this.init(node);
+				}
+
+			}
+		}
+		v.bindDOM=function(nodes,data,regExp){
+			var node;
+			for(var i=0;i<nodes.length;i++){
+				node=nodes[i];
+					/*node.originText=node.nodeValue;
+					Object.defineProperty(node,originText,{
+						enumerable:true,
+						writable:false
+					});*/
+					//如果初始化后又有个别属性改变，先单独渲染
+					if(regExp){
+						var changeStr=node.originText.match(regExp);
+						if(changeStr===null){
+							continue;
+						}
+						node.nodeValue=node.originText;
+						this.randerDOM(node,data,changeStr);
+					}
+					//渲染整个节点
+					this.randerDOM(node,data,node.str);
+			}
+		}
+
+		v.randerDOM=function(node,data,words){
+			for(var i=0;i<words.length;i++){
+			//由于js没有向后预查所以这里手动去掉两个大括号
+				var key=words[i].substring(2,words[i].length-2);
+				var value=eval("data."+key);
+				node.nodeValue=node.nodeValue.replace(words[i],value);
+		}
+
+	}
+
+/////////////////测试代码
+		var app=new Vue({
+			el:'#app',
+			data:{
+				user:{
+					name:{
+						xing:"王",
+						ming:"五"
+					},
+					age:25
+				}
+			}
+		})
+	</script>
+</body>
+</html>
