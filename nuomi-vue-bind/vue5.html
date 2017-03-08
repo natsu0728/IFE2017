@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>vue-4</title>
+	<style type="text/css">
+		.display{
+			border:1px solid #999;
+			padding:5px;
+			width: 200px;
+		}
+	</style>
+</head>
+<body>
+	<div id="app">
+		<div class="display">
+		<p>姓名：(姓){{user.name.xing}}(名){{user.name.ming}}</p>
+		<p>年龄：{{user.age}}</p>
+		</div>
+		<br />
+		<div>
+			<p>在控制台修改app.data的以下值看绑定效果:</p>
+			<p>user:{</p>
+			<p>&nbsp;&nbsp;name:{</p>
+			<p>&nbsp;&nbsp;&nbsp;&nbsp;xing:"",</p>
+			<p>&nbsp;&nbsp;&nbsp;&nbsp;ming:""</p>
+			<p>&nbsp;&nbsp;},</p>
+			<p>&nbsp;&nbsp;age:</p>
+			<p>}</p>
+			<p>如：app.data.user.name={xing:"张",ming:"三"}</p>
+		</div>
+	</div>
+	<script type="text/javascript">
+////////////Vue对象
+		function Vue(dataObj){
+			var el=dataObj.el;
+			if(el.charAt(0)!="#"){
+				throw '应传入元素的id';
+			}
+			el=el.substring(1);
+			this.element=document.getElementById(el);
+			this.data=dataObj.data;
+			//监听数据
+			var app=new Observer(this.data,this);
+			this.init(this.element);
+			this.bindDOM(this.element,this.data);
+		}
+
+		var v=Vue.prototype;
+
+		v.init=function(element){
+			var childEle=element.childNodes,
+				node;
+			for(var i=0;i<childEle.length;i++){
+				node=childEle[i];
+				//取出文本节点
+				if(node.nodeType===3 && node.nodeValue.trim()){
+					//拷贝原始的文本内容
+					node.originText=node.nodeValue;
+				}else if(node.nodeType===1){
+					this.init(node);
+				}
+
+			}
+		}
+		v.bindDOM=function(element,data,regExp){
+			var childEle=element.childNodes,
+				node;
+			for(var i=0;i<childEle.length;i++){
+				node=childEle[i];
+				//取出文本节点
+				if(node.nodeType===3 && node.nodeValue.trim()){
+					/*node.originText=node.nodeValue;
+					Object.defineProperty(node,originText,{
+						enumerable:true,
+						writable:false
+					});*/
+					//匹配符合条件的字符串
+					var str=node.originText.match(/\{\{(\w+(?:\.\w+)*)\}\}/g);
+					if(str===null){
+							continue;
+						}
+					//如果初始化后又有个别属性改变，单独匹配
+					if(regExp){
+						var changeStr=node.originText.match(regExp);
+						if(changeStr===null){
+							continue;
+						}
+						node.nodeValue=node.originText;
+						this.randerDOM(node,data,changeStr);
+					}
+					//渲染整个节点
+					this.randerDOM(node,data,str);
+				}else if(node.nodeType===1){
+					this.bindDOM(node,data,regExp);
+				}
+
+			}
+		}
+
+		v.randerDOM=function(node,data,words){
+			for(var i=0;i<words.length;i++){
+			//由于js没有向后预查所以这里手动去掉两个大括号
+				var key=words[i].substring(2,words[i].length-2);
+				var value=eval("data."+key);
+				node.nodeValue=node.nodeValue.replace(words[i],value);
+		}
+
+	}
+
+/////////////////observer对象
+
+		//用event函数进行封装 
+		function Observer(data,vue){
+			this.data=data;
+			//用来存放回调
+			this.cb={};
+			this.vue=vue;
+			this.walk(data);	
+		}
+
+		var p=Observer.prototype;
+
+		p.walk=function(obj){
+			var val;
+			for(var key in obj){
+				if(obj.hasOwnProperty(key)){
+					val=obj[key];
+					if(typeof val==='object'){
+						var obs=new Observer(val,this.vue);
+						obs.parent=this;
+						//用观察者记录嵌套属性的属性名
+						obs.key=key;				
+						//所有非最深层属性都有额外的children属性，所有深层属性都具有key和parent属性
+						this.children=this.children || new Object();
+						this.children[key]=obs;
+					}
+					this.convert(key,val);
+				}
+			}
+
+		}
+
+		p.convert=function(key,val){
+			var observer=this;
+			Object.defineProperty(this.data,key,{
+				enumerable:true,
+				configurable:true,
+				get:function(){
+					/*console.log('你访问了'+key);*/
+					return val;
+				},
+				set:function(newVal){
+					console.log('新的'+key+'='+newVal);
+					if(newVal===val) return;
+					//设置的新属性为对象时再调用观察者
+					val=newVal;
+					if(typeof val==='object'){
+						var obs=new Observer(val,observer.vue);
+						obs.parent=observer;
+						obs.key=key;
+						observer.children[key]=obs;
+					}
+					//触发事件
+					observer.eventOn(key,newVal);
+				}
+			})
+		}
+
+		p.eventOn=function(key,newVal){
+			//动态数据绑定
+			var parent=this;
+			var path=key;
+			while(parent.key){
+				path=parent.key+"."+path;
+				//回调冒泡
+				/*if(parent.parent.cb[parent.key]){
+				parent.cb[parent.key].forEach(function(sub){
+					sub(parent.data);
+					})
+				}*/
+				parent=parent.parent;
+			}
+			var regExp=new RegExp("\\{\\{"+path+"(?:\\.\\w+)*\\}\\}","g")
+			this.vue.bindDOM(this.vue.element,this.vue.data,regExp);
+			//如果newValue是一个对象
+
+			//执行挂在这个观察者上的回调
+			if(this.cb[key]){
+				this.cb[key].forEach(function(sub){
+					sub(newVal);
+				})
+			}			
+		}
+
+
+		//挂上回调函数
+		p.$watch=function(prop,callback){
+			//prop可能是一个“obj.prop.key”的形式，找到观察prop的observer，把回调函数挂上去
+			var props=prop.split("."),
+			len=props.length,
+			obs=this;
+			props.forEach(function(prop){
+				if(len-- >1){
+					obs=obs.children[prop];
+				}
+				
+			});
+			var key=props[props.length-1];
+			if(!obs.cb[key]){
+				obs.cb[key]=[];
+			}
+			obs.cb[key].push(callback);
+		}
+
+
+
+		var app=new Vue({
+			el:'#app',
+			data:{
+				user:{
+					name:{
+						xing:"王",
+						ming:"五"
+					},
+					age:25
+				}
+			}
+		})
+	</script>
+</body>
+</html>

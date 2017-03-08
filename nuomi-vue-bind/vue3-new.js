@@ -41,13 +41,13 @@ p.convert=function(key,val){
 			console.log('新的'+key+'='+newVal);
 			if(newVal===val) return;
 			//设置的新属性为对象时再调用观察者
+			val=newVal;
 			if(typeof newVal==='object'){
 				var obs=new Observer(val);
-				obs.parent=this;
+				obs.parent=observer;
 				obs.key=key;
 				observer.children[key]=obs;
-			}
-			val=newVal;
+			}			
 			//触发事件
 			observer.eventOn(key,newVal);
 		}
@@ -94,7 +94,7 @@ p.$watch=function(prop,callback){
 //测试代码
 var data={
 	user:{
-		name:{xin:"zhang",
+		name:{xing:"zhang",
 			  ming:{chinese:"san",
 			  		english:"three"
 			  		},
@@ -112,10 +112,10 @@ var data={
 
 var app=new Observer(data);
 
-app.$watch('user.name.xin',function(newVal){
-		console.log('我的xin属性变了，变为了'+newVal);
+app.$watch('user.name.xing',function(newVal){
+		console.log('我的xing属性变了，变为了'+newVal);
 });
 
 app.$watch('user.name',function(newVal){
-		console.log('我的用户名属性变了，可能是姓，可能是名，变为了'+newVal.xin);
+		console.log('我的用户名属性变了，可能是姓，可能是名，变为了'+newVal.xing);
 });
